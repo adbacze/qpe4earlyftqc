@@ -19,5 +19,6 @@ import scipy
 import math
 from callGridSynth import *
 from CTcompiler import *
-from RPEGridSynth import *
-#from IPEGridSynth import *
+from aRPE import *
+from qcels import *
+from MMqcels import *
