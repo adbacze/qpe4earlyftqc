@@ -10,7 +10,8 @@ from cmath import exp
 #Both qcels and noisy_qcels actually perform just a single generation of the algorithm.
 #Separate functions are provide to perform the least squares fit
 
-def qcels(N, Ns, W, Usp, numQubits, repetitions,target):
+#N = Number of data pairs, Ns = Number of Samples, W = function to implement time evolution operator, Usp = function to implement state prep, numQubits = number of qubits including ancilla, repetitions = number of time evolution operator applications per data pair
+def qcels(N, Ns, W, Usp, numQubits, repetitions):
 
     z = np.zeros(N,dtype=complex)
 
@@ -26,8 +27,8 @@ def qcels(N, Ns, W, Usp, numQubits, repetitions,target):
 
         for i in range(l):
             for k in range(repetitions):
-                W(qcI,target)
-                W(qcS,target)
+                W(qcI)
+                W(qcS)
 
         qcS.sdg(0)
         qcI.h(0)
@@ -49,7 +50,7 @@ def qcels(N, Ns, W, Usp, numQubits, repetitions,target):
         if '0' in counts.keys():
             x = 2*counts['0']/Ns -1
         else:
-            x = -1
+            x = -1 #If measurement outcomes are all 1 the set x = -1
 
         aer_sim = Aer.get_backend('aer_simulator')
         qcS_compiled = transpile(qcS, aer_sim)
@@ -61,23 +62,25 @@ def qcels(N, Ns, W, Usp, numQubits, repetitions,target):
         if '0' in counts.keys():
             y = 2*counts['0']/Ns -1
         else:
-            y = -1
+            y = -1 #If measurement outcomes are all 1 the set y = -1
 
-        z[l] = complex(x,y)
+        z[l] = complex(x,y) #return time series  
     return z
 
-def F(x, z, N, t):
+def F(x, z, N, t): #Define function to minimized for least squares fir 
     Z_fit=np.zeros(N,dtype = 'complex_')
     Z_fit=(x[0]+1j*x[1])*np.exp(-1j*x[2]*t)
     return (np.linalg.norm(Z_fit-z)**2/N)
 
-def maxF(z, N, t, est, bnds):
+#z = time series data generated form qcels, N = number of data pairs, t = corresponding times for time series, est = prior estimate, bnds = bounds for fit
+def maxF(z, N, t, est, bnds): #performs least squares fit and returns eigenvalue estimates
     fun = lambda x: F(x, z, N, t)
     result = minimize(fun,x0=[0.5,0,est],method = 'SLSQP',bounds=bnds)
     return result.x
 
 
-def noisy_qcels(N, Ns, W, Usp, numQubits, repetitions, nm, precision, target):
+#N = Number of data pairs, Ns = Number of Samples, W = function to implement time evolution operator, Usp = function to implement state prep, numQubits = number of qubits including ancilla, repetitions = number of time evolution operator applications per data pair, precision = rotation synthesis 
+def noisy_qcels(N, Ns, W, Usp, numQubits, repetitions, nm, precision):
 
     z = np.zeros(N,dtype=complex)
 
@@ -93,8 +96,8 @@ def noisy_qcels(N, Ns, W, Usp, numQubits, repetitions, nm, precision, target):
 
         for i in range(l):
             for k in range(repetitions):
-                W(qcI,target)
-                W(qcS,target)
+                W(qcI)
+                W(qcS)
 
         qcS.sdg(0)
         qcI.h(0)
@@ -137,7 +140,7 @@ def noisy_qcels(N, Ns, W, Usp, numQubits, repetitions, nm, precision, target):
             y = -1
 
         z[l] = complex(x,y)
-    return [z, T]
+    return [z, T] #returns time series along with the T count for a single shot of a generation of qcels
 
 
 #
