@@ -1,0 +1,246 @@
+from Imports import *
+from qcels import *
+
+def Ham(g):
+    #print('Ham')
+    Z = np.array([[1,0],[0,-1]])
+    X = np.array([[0,1],[1,0]])
+    Y = np.array([[0,-1j],[1j,0]])
+    I = np.array([[1,0],[0,1]])
+    H = (g[1]*np.kron(Z, I)) + (g[2]*np.kron(I, Z)) + (g[3]*np.kron(Z,Z)) + (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
+    H = (g[1]*np.kron(I, Z)) + (g[2]*np.kron(Z, I)) +  (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
+    return H
+
+R = np.linspace(0.2,2.85,54)
+
+g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
+              [2.1868, 0.5449, -1.2870, 0.6719, 0.0798, 0.0798],
+              [1.7252, 0.5215, -1.1458, 0.6631, 0.0806, 0.0806],
+              [1.3827, 0.4982, -1.0226, 0.6537, 0.0815, 0.0815],
+              [1.1182, 0.4754, -0.9145, 0.6438, 0.0825, 0.0825],
+              [0.9083, 0.4534, -0.8194, 0.6336, 0.0835, 0.0835],
+              [0.7381, 0.4325, -0.7355, 0.6233, 0.0846, 0.0846],
+              [0.5979, 0.4125, -0.6612, 0.6129, 0.0858, 0.0858],
+              [0.4808, 0.3937, -0.5950, 0.6025, 0.0870, 0.0870],
+              [0.3819, 0.3760, -0.5358, 0.5921, 0.0883, 0.0883],
+              [0.2976, 0.3593, -0.4826, 0.5818, 0.0896, 0.0896],
+              [0.2252, 0.3435, -0.4347, 0.5716, 0.0910, 0.0910],
+              [0.1626, 0.3288, -0.3915, 0.5616, 0.0925, 0.0925],
+              [0.1083, 0.3149, -0.3523, 0.5518, 0.0939, 0.0939],
+              [0.0609, 0.3018, -0.3168, 0.5421, 0.0954, 0.0954],
+              [0.0193, 0.2895, -0.2845, 0.5327, 0.0970, 0.0970],
+              [-0.0172, 0.2779, -0.2550, 0.5235, 0.0986, 0.0986],
+              [-0.0493, 0.2669, -0.2282, 0.5146, 0.1002, 0.1002],
+              [-0.0778, 0.2565, -0.2036, 0.5059, 0.1018, 0.1018],
+              [-0.1029, 0.2467, -0.1810, 0.4974, 0.1034, 0.1034],
+              [-0.1253, 0.2374, -0.1603, 0.4812, 0.1050, 0.1050],
+              [-0.1452, 0.2286, -0.1413, 0.4812, 0.1067, 0.1067],
+              [-0.1629, 0.2203, -0.1238, 0.4735, 0.1083, 0.1083],
+              [-0.1786, 0.2123, -0.1077, 0.4660, 0.1100, 0.1100],
+              [-0.1927, 0.2048, -0.0929, 0.4588, 0.1116, 0.1116],
+              [-0.2053, 0.1976, -0.0792, 0.4518, 0.1133, 0.1133],
+              [-0.2165, 0.1908, -0.0666, 0.4451, 0.1149, 0.1149],
+              [-0.2265, 0.1843, -0.0549, 0.4386, 0.1165, 0.1165],
+              [-0.2355, 0.1782, -0.0442, 0.4323, 0.1181, 0.1181],
+              [-0.2436, 0.1723, -0.0342, 0.4262, 0.1196, 0.1196],
+              [-0.2508, 0.1667, -0.0251, 0.4204, 0.1211, 0.1211],
+              [-0.2573, 0.1615, -0.0166, 0.4148, 0.1226, 0.1226],
+              [-0.2632, 0.1565, -0.0088, 0.4094, 0.1241, 0.1241],
+              [-0.2684, 0.1517, -0.0015, 0.4042, 0.1256, 0.1256],
+              [-0.2731, 0.1472, 0.0052, 0.3992, 0.1270, 0.1270],
+              [-0.2774, 0.1430, 0.0114, 0.3944, 0.1284, 0.1284],
+              [-0.2812, 0.1390, 0.0171, 0.3898, 0.1297, 0.1297],
+              [-0.2847, 0.1352, 0.0223, 0.3853, 0.1310, 0.1310],
+              [-0.2879, 0.1316, 0.0272, 0.3811, 0.1323, 0.1323],
+              [-0.2908, 0.1282, 0.0317, 0.3769, 0.1335, 0.1335],
+              [-0.2934, 0.1251, 0.0359, 0.3730, 0.1347, 0.1347],
+              [-0.2958, 0.1221, 0.0397, 0.3692, 0.1359, 0.1359],
+              [-0.2980, 0.1193, 0.0432, 0.3655, 0.1370, 0.1370],
+              [-0.3000, 0.1167, 0.0465, 0.3620, 0.1381, 0.1381],
+              [-0.3018, 0.1142, 0.0495, 0.3586, 0.1392, 0.1392],
+              [-0.3035, 0.1119, 0.0523, 0.3553, 0.1402, 0.1402],
+              [-0.3051, 0.1098, 0.0549, 0.3521, 0.1412, 0.1412],
+              [-0.3066, 0.1078, 0.0572, 0.3491, 0.1422, 0.1422],
+              [-0.3079, 0.1059, 0.0594, 0.3461, 0.1432, 0.1432],
+              [-0.3092, 0.1042, 0.0614, 0.3433, 0.1441, 0.1441],
+              [-0.3104, 0.1026, 0.0632, 0.3406, 0.1450, 0.1450],
+              [-0.3115, 0.1011, 0.0649, 0.3379, 0.1458, 0.1458],
+              [-0.3125, 0.0997, 0.0665, 0.3354, 0.1467, 0.1467],
+              [-0.3135, 0.0984, 0.0679, 0.3329, 0.1475, 0.1475]])
+
+def eigensystem(h):
+    #print('es')
+    l,e = np.linalg.eig(h)
+    ll = np.zeros(4)
+    ee = np.zeros([4,4],dtype = 'complex_')
+    for i in range(4):
+        m = l.argmin()
+        ll[i] = l[m]
+        ee[:,i] = e[:,m]
+        l = np.delete(l,m)
+        #print(ee)
+        e = np.delete(e,m,1)
+    return ll,ee
+
+I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+
+h = Ham(g[15])
+
+def P(h):
+    #print('P')
+    PP = np.zeros([4,4])
+    l,e = eigensystem(h)
+    for i in range(4):
+        #print(np.outer(e[:,i],I[i,:]))
+        PP = PP + np.outer(e[:,i],I[i,:])
+    return PP
+
+def Usp(circuit):
+    p = P(h)
+    proj = UnitaryGate(p)
+    circuit.rx(pi/3,1)
+    #circuit.rx(0.6435,1)
+    circuit.append(proj,[1,2])
+
+
+def W(circuit,target):
+    tjj = pow(2,-J-1)/(N*target)
+    unitary = scipy.linalg.expm(-1j*Ham(g[15])*tjj) #hbar=1
+    U = UnitaryGate(unitary)
+    cU = U.control(1)
+    circuit.append(cU,[0,1,2])
+
+def W_trot(circuit,target):
+    J = math.ceil(np.log2(1/target)) + 1
+    tjj = pow(2,-1)
+    gTrot = g[15]
+    a1 = -2*gTrot[1]*tjj
+    a2 = -2*gTrot[2]*tjj
+    a3 = -2*gTrot[3]*tjj
+    a4 = -2*gTrot[4]*tjj
+    a5 = -2*gTrot[5]*tjj
+    steps = 1
+    for i in range(steps):
+        #XX
+        circuit.h(1)
+        circuit.h(2)
+        circuit.cx(2,1)
+        circuit.cx(0,1)
+        circuit.rz(a4/(2*steps),1)
+        circuit.cx(0,1)
+        circuit.cx(2,1)
+        circuit.h(1)
+        circuit.h(2)
+        #Z1
+        circuit.cx(0,1)
+        circuit.rz(a1/(2*steps),1)
+        circuit.cx(0,1)
+        #YY
+        circuit.sdg(1)
+        circuit.sdg(2)
+        circuit.h(1)
+        circuit.h(2)
+        circuit.cx(2,1)
+        circuit.cx(0,1)
+        circuit.rz(a5/(2*steps),1)
+        circuit.cx(0,1)
+        circuit.cx(2,1)
+        circuit.h(1)
+        circuit.h(2)
+        circuit.s(1)
+        circuit.s(2)
+        #Z2
+        circuit.cx(0,2)
+        circuit.rz(a2/(2*steps),2)
+        circuit.cx(0,2)
+
+Ns = 50
+N = 2
+target = 1e-3;
+J = math.ceil(np.log2(1/target)) +1
+lc,ec = eigensystem(Ham(g[15]))
+tjj = pow(2,-1)
+
+samples = 50;
+errors = np.zeros([J,samples])
+error = np.zeros(J)
+wCalls = np.zeros(J)
+wCallsMax = np.zeros(J)
+maxJ = np.zeros(J)
+Tmax = np.zeros(J)
+Ttot = np.zeros(J)
+Ns_f = np.zeros(J)
+
+for l in range(J):
+    Ns_f[l] = Ns
+    newError = 0
+    error[l] = pi
+    numFails = 0
+    while(True):
+        for k in range(samples):
+            rep = 1
+            for i in range(l+1):
+                print('S'+str(k)+ ' G'+str(i))
+                tj = pow(2,i)*tjj
+                t = np.linspace(0,tj*(N-1),N)
+                sim = qcels(N,int(Ns_f[l]),W_trot,Usp,3,rep,target);
+                z = sim[0]
+                if (i==0):
+                    est = (-1*atan2(np.imag(z[1]),np.real(z[1])))
+                    bnds = [(-1,1),(-1,1),(-pi,pi)]
+
+                zfit = maxF(z,N,t,est,bnds)
+                rep = rep*2
+                est = zfit[2]
+                bnds = [(-1,1),(-1,1),(est-pi/(2*tj),est+pi/(2*tj))]
+                print(est)
+                #print(lc[0])
+                wCalls[l] += sim[1]
+                wCallsMax[l] = sim[1]/2
+            errors[l][k] = (abs(est-lc[0]))
+        wCalls[l] = wCalls[l]/samples
+        newError = np.mean(errors[l])
+        print(newError)
+        #if(newError < target):
+        #    error[l] = newError
+        #    break
+        if(newError < (0.95*error[i])):
+            error[l] = newError
+            Ns_f[l] = math.ceil(Ns_f[l] * 2)
+            numFails = 0
+        elif(newError >= (0.95*error[l])):
+            numFails += 1
+            if(numFails == 5):
+                break
+
+for i in range(J):
+    UspT = QuantumCircuit(3)
+    WT = QuantumCircuit(3)
+    Usp(UspT)
+    W_trot(WT,target)
+    UspT = compileCT(UspT,0.9*target)
+    WT = compileCT(WT,0.9*target)
+    Tsp = UspT.count_ops().get('t')
+    Tw  = WT.count_ops().get('t')
+    Tmax[i] = Tsp + wCallsMax[i]*Tw
+    #Ttot[i] = 2*maxJ[i]*Ns*Tsp + Ns*wCalls[i]*Tw
+
+print(error)
+np.savetxt("maxNsQCELSp75.csv",error,delimiter=",")
+np.savetxt("TmaxNsQCELSp75.csv",Tmax,delimiter=",")
+#np.savetxt("001qcelNsp75.csv",Ns_success,delimiter=",")
+
+plt.figure()
+plt.plot(Tmax,error)
+#plt.plot(Num,scaling)
+plt.yscale("log")
+#plt.xscale("log")
+plt.rc('axes', labelsize = 14)
+plt.ylabel("T tot")
+plt.xlabel("T Max")
+plt.grid()
+#plt.legend(["Sim","$(N_s)^{-1/2}(Nt_j)^{-1}$"])
+#plt.savefig(r'C:\Users\jsnel\Desktop\SummerProject23\Code\Figures\H2qcels_Stratp75.png')
+plt.show()
+
+#
