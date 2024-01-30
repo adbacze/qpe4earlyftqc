@@ -3,6 +3,7 @@ from cmath import exp
 
 #This script is used to simulate aRPE applied to ground state energy of H2
 
+#Hamiltion derivied in https://arxiv.org/pdf/1512.06860.pdf
 def Ham(g):
     Z = np.array([[1,0],[0,-1]])
     X = np.array([[0,1],[1,0]])
@@ -11,8 +12,9 @@ def Ham(g):
     H = (g[1]*np.kron(I, Z)) + (g[2]*np.kron(Z, I)) +  (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     return H
 
-R = np.linspace(0.2,2.85,54)
+R = np.linspace(0.2,2.85,54) #interatomic distances 
 
+#parameters for Hamiltonian coefficients based off of interatomic distance
 g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [2.1868, 0.5449, -1.2870, 0.6719, 0.0798, 0.0798],
               [1.7252, 0.5215, -1.1458, 0.6631, 0.0806, 0.0806],
@@ -68,7 +70,8 @@ g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [-0.3125, 0.0997, 0.0665, 0.3354, 0.1467, 0.1467],
               [-0.3135, 0.0984, 0.0679, 0.3329, 0.1475, 0.1475]])
 
-def eigensystem(h):
+#I'm currently handling state prep by constructing a projector from |00> to H2 ground state. 
+def eigensystem(h): #finds eigenstate/values and orders them in non-decreasing order
     l,e = np.linalg.eig(h)
     ll = np.zeros(4)
     ee = np.zeros([4,4],dtype = 'complex_')
@@ -80,112 +83,101 @@ def eigensystem(h):
         e = np.delete(e,m,1)
     return ll,ee
 
-I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
-
-h = Ham(g[15])
-
-def P(h):
+def P(h): #Creates matrix projector from basis states to hamilitonian eigenstates 
+    I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
     PP = np.zeros([4,4])
     l,e = eigensystem(h)
     for i in range(4):
         PP = PP + np.outer(e[:,i],I[i,:])
     return PP
 
-def Usp(circuit):
+def Usp(circuit): #Turns projector into UnitaryGate object and applies to input quantum circuit
+    h = Ham(g[15]) #I choose the bond distance arbitrarily although it's somewhat close to equilibirium 
     p = P(h)
     proj = UnitaryGate(p)
     circuit.rx(pi/3,1) #rotation controls target state overlap
-    circuit.append(proj,[1,2])
+    circuit.append(proj,[1,2]) #Apply to qubits 1&2 as they are the system qubits, qubit 0 is ancilla qubit
 
-t = pow(2,-1)
+t = pow(2,-1) 
+gTrot = g[15] 
+a1 = -2*gTrot[1]*t
+a2 = -2*gTrot[2]*t
+a3 = -2*gTrot[3]*t
+a4 = -2*gTrot[4]*t
+a5 = -2*gTrot[5]*t
 
-gTrot = g[15]
-steps = 1
-a1 = -2*gTrot[1]*t/steps
-a2 = -2*gTrot[2]*t/steps
-a3 = -2*gTrot[3]*t/steps
-a4 = -2*gTrot[4]*t/steps
-a5 = -2*gTrot[5]*t/steps
+def W_trot(circuit): #trotterized time evolution operator, time must be chosen so trotter error is not a limiting factor
+    #XX
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a4/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    #Z1
+    circuit.cx(0,1)
+    circuit.rz(a1/2,1)
+    circuit.cx(0,1)
+    #YY
+    circuit.sdg(1)
+    circuit.sdg(2)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a5/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.s(1)
+    circuit.s(2)
+    #Z2
+    circuit.cx(0,2)
+    circuit.rz(a2/2,2)
+    circuit.cx(0,2)
 
-def W_trot(circuit):
-    for i in range(steps):
-        #XX
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a4/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        #Z1
-        circuit.cx(0,1)
-        circuit.rz(a1/(2*steps),1)
-        circuit.cx(0,1)
-        #YY
-        circuit.sdg(1)
-        circuit.sdg(2)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a5/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.s(1)
-        circuit.s(2)
-        #Z2
-        circuit.cx(0,2)
-        circuit.rz(a2/(2*steps),2)
-        circuit.cx(0,2)
-
-unitary = scipy.linalg.expm(-1j*Ham(g[15])*t) #hbar=1
-U = UnitaryGate(unitary)
-cU = U.control(1)
-
-def W(circuit):
+def W(circuit): #exact time evolution operator (used for debugging)
+    unitary = scipy.linalg.expm(-1j*Ham(g[15])*t) #hbar=1
+    U = UnitaryGate(unitary)
+    cU = U.control(1)
     circuit.append(cU,[0,1,2])
 
-lc,ec = eigensystem(Ham(g[15]))
-
-target = np.logspace(-1,-10,num=10,base=2);
-samples = 10
-alpha = pow(0.75*sqrt(3)/2-0.25,2)
-eta = 0.01
+lc,ec = eigensystem(Ham(g[15])) #Precalculate exact eigenvalue to determine error of simulation
+target = np.logspace(-1,-10,num=10,base=2); #target errors for protocol to reach
+samples = 10 #times to repeat entire protocol to create average error
+alpha = pow(0.75*sqrt(3)/2-0.25,2) #alpha parameter described in https://arxiv.org/pdf/2302.02454.pdf used to determine number of samples 
+eta = 0.01 #probability of failture
 errors = np.zeros([len(target),samples])
 error = np.zeros(len(target))
-wCalls = np.zeros([len(target)])
-wCallsMax = np.zeros([len(target)])
-maxJ = np.zeros([len(target)])
 Tmax = np.zeros(len(target))
 Ttot = np.zeros(len(target))
-scaling = np.zeros(len(target))
 
+#depolarizing noise model
 p_hardware = 0.001
-b = 35*pow(p_hardware,3)
+b = 35*pow(p_hardware,3) #assume 15:1 T state protocol
 T_rate = 9.27
 d = 17
 n_L = 19
-prob_err = b + T_rate*n_L*d*0.1*pow(100*p_hardware,(d+1)/2)
+prob_err = b + T_rate*n_L*d*0.1*pow(100*p_hardware,(d+1)/2) #probability of error per T gate
 DPerror = depolarizing_error(prob_err,1);
 nm = NoiseModel()
-nm.add_all_qubit_quantum_error(DPerror, ['t'])
+nm.add_all_qubit_quantum_error(DPerror, ['t']) #We are assuming Clifford gates have been commuted away
 
 for l in range(len(target)):
     J = math.ceil(np.log2(1/(target[l])))
     wCallsTot = pow(2,J)-1
     Ns = math.ceil((4/alpha)*(math.log(4/eta)+math.log(J+1)))
-    rNs = sqrt(Ns)
+    #rNs = sqrt(Ns) #If state overlap=1 utilize error reduction from Ns to reduce J NOTE: come back here to implement better
     #if(rNs>4):
     #	J = max(J-2,0)
     #elif(rNs>2 and rNs<4):
     #	J = max(J-1,0)
     wCallsTot = pow(2,J)-1
-    maxJ[l]=J
-    synPrecision = 0.9*target[l]/(Ns*wCallsTot*4)
+    synPrecision = 0.9*target[l]/(Ns*wCallsTot*4) #determine total number of Z-rotations in order to determine necessary rotation sysnthesis precision
     for k in range(samples):
         sim = noisy_arpe(Ns, Ns, W_trot, Usp, 3, J+1, nm, synPrecision)
         est = (-sim[0]/t)%(2*pi)
