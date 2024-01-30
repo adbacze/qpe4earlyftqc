@@ -1,6 +1,14 @@
 from Imports import *
-from scipy.optimize import minimize, shgo, least_squares, differential_evolution
+from scipy.optimize import minimize
 from cmath import exp
+
+#This script provides methods to simulate Quantum Complex Exponential Least Squares (QCELS) as described in https://arxiv.org/pdf/2211.11973.pdf
+#Two versions of this algorithm are provided; "qcels" performs noiseless simulations without compiling circuits into Clifford+Ts while "noisy_qcels" allows for the addition
+#of a noise model as well as compiles all circuits into Clifford+Ts while tracking the Tmax and Ttot.
+#Since qcels does not compile circuits into Clifford+Ts it runs much faster.
+
+#Both qcels and noisy_qcels actually perform just a single generation of the algorithm.
+#Separate functions are provide to perform the least squares fit
 
 def qcels(N, Ns, W, Usp, numQubits, repetitions,target):
 
