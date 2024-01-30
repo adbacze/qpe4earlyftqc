@@ -24,7 +24,7 @@ import numpy as np
 def decimalGridSynth(angle, precision):
     if (angle < 0): #correct formatting for gridsynth with negative angle
         angle = '"('+str(angle)+')"'
-    cmd = f"~/mystuff/python_scripts/gridsynth "+str(angle)+" -d "+str(precision);
+    cmd = f"./gridsynth "+str(angle)+" -d "+str(precision); #system command formatted for linux, ensure oath to gridsynth is correct 
     command_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
     command_output = command_output[:-1] # Drop the trailing newline
     sequence = command_output.replace('W','')# drop the global phase
@@ -51,7 +51,7 @@ def decimalRZ(circuit,qubit,angle,precision): #
 def binaryGridSynth(angle, precision):
     if (angle < 0): #correct formatting for gridsynth with negative angle
         angle = '"('+str(angle)+')"'
-    cmd = f"~/mystuff/python_scripts/gridsynth "+str(angle)+" -b "+str(precision);
+    cmd = f"./gridsynth "+str(angle)+" -b "+str(precision); #system command formatted for linux, ensure oath to gridsynth is correct
     command_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
     command_output = command_output[:-1] # Drop the trailing newline
     sequence = command_output.replace('W','')# drop the global phase
@@ -83,7 +83,7 @@ def epsilonGridSynth(angle, precision):
     if (angle < 0): #correct formatting for gridsynth with negative angle
         angle = '"('+str(angle)+')"'
 
-    cmd = f"~/mystuff/python_scripts/gridsynth "+str(angle)+" -e "+str(precision);
+    cmd = f"./gridsynth "+str(angle)+" -e "+str(precision); #system command formatted for linux, ensure oath to gridsynth is correct
     command_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
     command_output = command_output[:-1] # Drop the trailing newline
     sequence = command_output.replace('W','')# drop the global phase
