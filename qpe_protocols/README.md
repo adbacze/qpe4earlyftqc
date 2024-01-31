@@ -1,0 +1,3 @@
+This folder contains python scripts to simulate various quantum phase estimation (QPE) protocols using qiskit.
+Each script contains methods to run the protocol at the abstract "algorithmic" level (with arbitrary gates) or at a epsilion less abstract level with a noise model and where the circuits are compilied into the Clifford+T gate set making use of the CliffordTCompiler.
+An attempt was made to make the protocols in general, however, they were built specifically with the 3-qubit problem of H2 ground state energy estimation in mind and have not been extensively tested on other problems.
