@@ -8,7 +8,6 @@ def Ham(g):
     X = np.array([[0,1],[1,0]])
     Y = np.array([[0,-1j],[1j,0]])
     I = np.array([[1,0],[0,1]])
-    #H = (g[1]*np.kron(Z, I)) + (g[2]*np.kron(I, Z)) + (g[3]*np.kron(Z,Z)) + (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     H = (g[1]*np.kron(I, Z)) + (g[2]*np.kron(Z, I)) +  (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     return H
 
@@ -82,21 +81,17 @@ def eigensystem(h):
         #print(ee)
         e = np.delete(e,m,1)
     return ll,ee
-
-I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
-
-h = Ham(g[15])
-
+    
 def P(h):
-    #print('P')
+    I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
     PP = np.zeros([4,4])
     l,e = eigensystem(h)
     for i in range(4):
-        #print(np.outer(e[:,i],I[i,:]))
         PP = PP + np.outer(e[:,i],I[i,:])
     return PP
 
 def Usp(circuit):
+    h = Ham(g[15])
     p = P(h)
     proj = UnitaryGate(p)
     #circuit.rx(pi/3,1)
@@ -106,47 +101,45 @@ def Usp(circuit):
 t = pow(2,-1)
 
 gTrot = g[15]
-steps = 1
-a1 = -2*gTrot[1]*t/steps
-a2 = -2*gTrot[2]*t/steps
-a3 = -2*gTrot[3]*t/steps
-a4 = -2*gTrot[4]*t/steps
-a5 = -2*gTrot[5]*t/steps
+a1 = -2*gTrot[1]*t
+a2 = -2*gTrot[2]*t
+a3 = -2*gTrot[3]*t
+a4 = -2*gTrot[4]*t
+a5 = -2*gTrot[5]*t
 
 def W_trot(circuit):
-    for i in range(steps):
-        #XX
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a4/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        #Z1
-        circuit.cx(0,1)
-        circuit.rz(a1/(2*steps),1)
-        circuit.cx(0,1)
-        #YY
-        circuit.sdg(1)
-        circuit.sdg(2)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a5/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.s(1)
-        circuit.s(2)
-        #Z2
-        circuit.cx(0,2)
-        circuit.rz(a2/(2*steps),2)
-        circuit.cx(0,2)
+    #XX
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a4/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    #Z1
+    circuit.cx(0,1)
+    circuit.rz(a1/2,1)
+    circuit.cx(0,1)
+    #YY
+    circuit.sdg(1)
+    circuit.sdg(2)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a5/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.s(1)
+    circuit.s(2)
+    #Z2
+    circuit.cx(0,2)
+    circuit.rz(a2/2,2)
+    circuit.cx(0,2)
 
 
 unitary = scipy.linalg.expm(-1j*Ham(g[15])*t) #hbar=1
@@ -157,11 +150,6 @@ def W(circuit):
     circuit.append(cU,[0,1,2])
 
 lc,ec = eigensystem(Ham(g[15]))
-
-prob_err = 0;
-DPerror = depolarizing_error(prob_err,1);
-nm = NoiseModel()
-nm.add_all_qubit_quantum_error(DPerror, ['t'])
 
 target = 1e-3
 J = math.ceil(np.log2(1/target))
@@ -191,17 +179,12 @@ for i in range(J):
     while(True):
         for k in range(samples):
             #print(Ns_f[i])
-            sim = arpe(Ns_start, Ns_f[i], W_trot, Usp, 3, i+1, nm)
+            sim = arpe(Ns_start, Ns_f[i], W_trot, Usp, 3, i+1)
             est = (-sim[0]/t)%(2*pi)
             if(est>pi):
                 est = (est - 2*pi)
-        #    print(est)
             errors[i][k] = (abs(est-lc[0]))
         newError = np.mean(errors[i])
-        print(newError)
-        #if(newError < target):
-        #    error[i] = newError
-            #break
         if(newError < (0.95*error[i])):
             error[i] = newError
             Ns_f[i] = math.ceil(Ns_f[i] * 2)
@@ -212,8 +195,6 @@ for i in range(J):
                 break
     wCalls[i] = sim[1]
     wCallsMax[i] = sim[2]
-    print(Ns_f[i])
-    print("G"+str(i)+" complete")
 
 for i in range(J):
     UspT = QuantumCircuit(3)
@@ -227,34 +208,7 @@ for i in range(J):
     Tmax[i] = Tsp + wCallsMax[i]*Tw
     Ttot[i] = 2*((i-1)*Ns_start+Ns_f[i])*Tsp + wCalls[i]*Tw
 
-
-np.savetxt("maxNsRPEp9.csv",error,delimiter=",")
-np.savetxt("TmaxNsRPEp9.csv",Tmax,delimiter=",")
-
-
-plt.figure()
-
-plt.rc('axes', labelsize = 14)
-plt.plot(Tmax,error)
-#plt.plot(Num,scaling)
-plt.yscale("log")
-plt.xscale("log")
-plt.ylabel("Error")
-plt.xlabel("Tmax")
-
-plt.grid()
-#plt.show()
-
-#plt.figure()
-#plt.plot(Tmax,Ttot)
-#plt.plot(Num,scaling)
-plt.yscale("log")
-plt.xscale("log")
-plt.rc('axes', labelsize = 14)
-plt.ylabel("Error")
-#plt.xlabel("T Total")
-
-plt.grid()
-plt.show()
+#np.savetxt("maxNsRPEp9.csv",error,delimiter=",")
+#np.savetxt("TmaxNsRPEp9.csv",Tmax,delimiter=",")
 
 #
