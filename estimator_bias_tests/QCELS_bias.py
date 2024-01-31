@@ -7,7 +7,6 @@ def Ham(g):
     X = np.array([[0,1],[1,0]])
     Y = np.array([[0,-1j],[1j,0]])
     I = np.array([[1,0],[0,1]])
-    H = (g[1]*np.kron(Z, I)) + (g[2]*np.kron(I, Z)) + (g[3]*np.kron(Z,Z)) + (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     H = (g[1]*np.kron(I, Z)) + (g[2]*np.kron(Z, I)) +  (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     return H
 
@@ -69,7 +68,6 @@ g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [-0.3135, 0.0984, 0.0679, 0.3329, 0.1475, 0.1475]])
 
 def eigensystem(h):
-    #print('es')
     l,e = np.linalg.eig(h)
     ll = np.zeros(4)
     ee = np.zeros([4,4],dtype = 'complex_')
@@ -78,30 +76,24 @@ def eigensystem(h):
         ll[i] = l[m]
         ee[:,i] = e[:,m]
         l = np.delete(l,m)
-        #print(ee)
         e = np.delete(e,m,1)
     return ll,ee
 
-I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
-
-h = Ham(g[15])
-
 def P(h):
-    #print('P')
+    I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
     PP = np.zeros([4,4])
     l,e = eigensystem(h)
     for i in range(4):
-        #print(np.outer(e[:,i],I[i,:]))
         PP = PP + np.outer(e[:,i],I[i,:])
     return PP
 
 def Usp(circuit):
+    h = Ham(g[15])
     p = P(h)
     proj = UnitaryGate(p)
     circuit.rx(pi/3,1)
     #circuit.rx(0.6435,1)
     circuit.append(proj,[1,2])
-
 
 def W(circuit,target):
     tjj = pow(2,-J-1)/(N*target)
@@ -112,47 +104,45 @@ def W(circuit,target):
 
 def W_trot(circuit,target):
     J = math.ceil(np.log2(1/target)) + 1
-    tjj = pow(2,-1)
+    t = pow(2,-1)
     gTrot = g[15]
-    a1 = -2*gTrot[1]*tjj
-    a2 = -2*gTrot[2]*tjj
-    a3 = -2*gTrot[3]*tjj
-    a4 = -2*gTrot[4]*tjj
-    a5 = -2*gTrot[5]*tjj
-    steps = 1
-    for i in range(steps):
-        #XX
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a4/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        #Z1
-        circuit.cx(0,1)
-        circuit.rz(a1/(2*steps),1)
-        circuit.cx(0,1)
-        #YY
-        circuit.sdg(1)
-        circuit.sdg(2)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a5/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.s(1)
-        circuit.s(2)
-        #Z2
-        circuit.cx(0,2)
-        circuit.rz(a2/(2*steps),2)
-        circuit.cx(0,2)
+    a1 = -2*gTrot[1]*t
+    a2 = -2*gTrot[2]*t
+    a3 = -2*gTrot[3]*t
+    a4 = -2*gTrot[4]*t
+    a5 = -2*gTrot[5]*t
+    #XX
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a4/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    #Z1
+    circuit.cx(0,1)
+    circuit.rz(a1/2,1)
+    circuit.cx(0,1)
+    #YY
+    circuit.sdg(1)
+    circuit.sdg(2)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a5/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.s(1)
+    circuit.s(2)
+    #Z2
+    circuit.cx(0,2)
+    circuit.rz(a2/2,2)
+    circuit.cx(0,2)
 
 Ns = 50
 N = 2
@@ -225,22 +215,9 @@ for i in range(J):
     Tmax[i] = Tsp + wCallsMax[i]*Tw
     #Ttot[i] = 2*maxJ[i]*Ns*Tsp + Ns*wCalls[i]*Tw
 
-print(error)
 np.savetxt("maxNsQCELSp75.csv",error,delimiter=",")
 np.savetxt("TmaxNsQCELSp75.csv",Tmax,delimiter=",")
 #np.savetxt("001qcelNsp75.csv",Ns_success,delimiter=",")
 
-plt.figure()
-plt.plot(Tmax,error)
-#plt.plot(Num,scaling)
-plt.yscale("log")
-#plt.xscale("log")
-plt.rc('axes', labelsize = 14)
-plt.ylabel("T tot")
-plt.xlabel("T Max")
-plt.grid()
-#plt.legend(["Sim","$(N_s)^{-1/2}(Nt_j)^{-1}$"])
-#plt.savefig(r'C:\Users\jsnel\Desktop\SummerProject23\Code\Figures\H2qcels_Stratp75.png')
-plt.show()
 
 #
