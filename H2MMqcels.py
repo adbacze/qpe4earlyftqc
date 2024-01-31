@@ -1,6 +1,4 @@
 from Imports import *
-from MMqcels import *
-
 
 def Ham(g):
     Z = np.array([[1,0],[0,-1]])
@@ -192,32 +190,4 @@ for l in range(len(target)):
 #np.savetxt("MMQTmaxp1.csv",Tmax,delimiter=",")
 #np.savetxt("MMQPsp1.csv",probSuccess,delimiter=",")
 
-plt.plot(Tmax,error)
-plt.plot(Tmax,target)
-plt.plot(Tmax,scaling)
-plt.grid()
-plt.xscale("log")
-plt.yscale("log")
-plt.xlabel("T Max")
-plt.ylabel("Error")
-plt.legend(["Sim", "Target"])
-#plt.savefig(r'C:\Users\jsnel\Desktop\SummerProject23\Code\Figures\MMQcelsH2Tmax.jpg')
-plt.show()
-
-plt.plot(Ttot,error)
-plt.plot(Ttot,target)
-plt.grid()
-plt.xscale("log")
-plt.yscale("log")
-plt.xlabel("T Total")
-plt.ylabel("Error")
-plt.legend(["Sim", "Target"])
-#plt.savefig(r'C:\Users\jsnel\Desktop\SummerProject23\Code\Figures\MMQcelsH2.jpg')
-plt.show()
-
-plt.plot(probSuccess)
-plt.grid()
-plt.xlabel("Generation")
-plt.ylabel("Prob Success")
-plt.show()
 #
