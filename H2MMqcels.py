@@ -1,6 +1,8 @@
 from Imports import *
 
-def Ham(g):
+#This script is used to simulate MMQCELS applied to the ground state energy estimation of H2
+
+def Ham(g): #Hamiltion derivied in https://arxiv.org/pdf/1512.06860.pdf
     Z = np.array([[1,0],[0,-1]])
     X = np.array([[0,1],[1,0]])
     Y = np.array([[0,-1j],[1j,0]])
@@ -8,8 +10,9 @@ def Ham(g):
     H = (g[1]*np.kron(I, Z)) + (g[2]*np.kron(Z, I)) +  (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     return H
 
-R = np.linspace(0.2,2.85,54)
+R = np.linspace(0.2,2.85,54) #interatomic distances
 
+#parameters for Hamiltonian coefficients based off of interatomic distance
 g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [2.1868, 0.5449, -1.2870, 0.6719, 0.0798, 0.0798],
               [1.7252, 0.5215, -1.1458, 0.6631, 0.0806, 0.0806],
@@ -65,6 +68,7 @@ g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [-0.3125, 0.0997, 0.0665, 0.3354, 0.1467, 0.1467],
               [-0.3135, 0.0984, 0.0679, 0.3329, 0.1475, 0.1475]])
 
+#I'm currently handling state prep by constructing a projector from |00> to H2 ground state.
 def eigensystem(h):
     l,e = np.linalg.eig(h)
     ll = np.zeros(4)
@@ -77,7 +81,7 @@ def eigensystem(h):
         e = np.delete(e,m,1)
     return ll,ee
 
-def P(h):
+def P(h): #Creates matrix projector from basis states to hamilitonian eigenstates
     I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
     PP = np.zeros([4,4])
     l,e = eigensystem(h)
@@ -85,14 +89,14 @@ def P(h):
         PP = PP + np.outer(e[:,i],I[i,:])
     return PP
 
-def Usp(circuit):
-    h = Ham(g[15])
+def Usp(circuit): #Turns projector into UnitaryGate object and applies to input quantum circuit
+    h = Ham(g[15]) #I choose the bond distance arbitrarily although it's somewhat close to equilibirium 
     p = P(h)
     proj = UnitaryGate(p)
-    #circuit.rx(pi/3,2)
-    circuit.append(proj,[1,2])
+    #circuit.rx(pi/3,2) #rotation controls target state overlap
+    circuit.append(proj,[1,2]) #Apply to qubits 1&2 as they are the system qubits, qubit 0 is ancilla qubit
 
-def W_trot(circuit,t):
+def W_trot(circuit,t): #trotterized time evolution operator, time t is drawn from normal distribution
     gTrot = g[15]
     a1 = -2*gTrot[1]*t
     a2 = -2*gTrot[2]*t
@@ -133,47 +137,48 @@ def W_trot(circuit,t):
     circuit.rz(a2/2,2)
     circuit.cx(0,2)
 
-def W(circuit,t):
+def W(circuit,t): #exact time evolution operator (used for debugging)
     unitary = scipy.linalg.expm(-1j*Ham(g[15])*t) #hbar=1
     U = UnitaryGate(unitary)
     cU = U.control(1)
     circuit.append(cU,[0,1,2])
 
-target = np.logspace(-1,-10,num=10,base=2);
+target = np.logspace(-1,-10,num=10,base=2); #Target errors
 samples = 10;
-N = 50
-Ns = 5
+N = 50 #Number of data pairs
+Ns = 5 #Number of times to sample at each Hamilitonian simulation time to generate data pair
 errors = np.zeros([len(target),samples])
 error = np.zeros(len(target))
-Ttots = np.zeros([len(target),samples])
+Ttots = np.zeros([len(target),samples]) #As Hamilitonian simulation time is random, Ttot and Tmax will have some randomness too, I therefore will take the mean
 Tmaxs = np.zeros([len(target),samples])
 probSuccess = np.zeros(samples)
 Tmax = np.zeros(len(target))
 Ttot = np.zeros(len(target))
 lc,ec = eigensystem(Ham(g[15]))
 
+#depolarizing noise model
 p_hardware = 0.001
-b = 35*pow(p_hardware,3)
+b = 35*pow(p_hardware,3) #assume 15:1 T state protocol
 T_rate = 9.27
 d = 17
 n_L = 19
-prob_err = b + T_rate*n_L*d*0.1*pow(100*p_hardware,(d+1)/2)
+prob_err = b + T_rate*n_L*d*0.1*pow(100*p_hardware,(d+1)/2) #probability of error per T gate
 DPerror = depolarizing_error(prob_err,1);
 nm = NoiseModel()
-nm.add_all_qubit_quantum_error(DPerror, ['t'])
+nm.add_all_qubit_quantum_error(DPerror, ['t']) #We are assuming Clifford gates have been commuted away
 
 for l in range(len(target)):
     J = math.ceil(np.log2(1/target[l]))+1
     rN = sqrt(N*Ns)
-    if(rN>4):
+    if(rN>4): #If state overlap=1 utilize error reduction from Ns to reduce J NOTE: come back here to implement better
     	J = max(J-2,1)
     elif(rN>2 and rN<4):
     	J = max(J-1,1)
-    wCallsTot = pow(2,J)-1
+    wCallsTot = pow(2,J)-1 #determine total number of Z-rotations in order to determine necessary rotation sysnthesis precision
     synPrecision = 0.9*target[l]/(Ns*N*wCallsTot*4)
     for j in range(samples):
         print("Gen "+str(J)+ " Sample "+str(j))
-        sim = MMQcels(N, Ns, (1/3)*pow(2,-1), pow(2,-1), W_trot, Usp, 3, J, nm, synPrecision)
+        sim = noisy_MMQcels(N, Ns, (1/3)*pow(2,-1), pow(2,-1), W_trot, Usp, 3, J, nm, synPrecision)
         est = sim[0]
         errors[l][j] = abs(est-lc[0])
         if(errors[l][j]<target[l]):
