@@ -17,5 +17,5 @@ from qiskit.extensions import UnitaryGate
 from qiskit.quantum_info.random import random_unitary
 import scipy
 import math
-from CliffordTCompiler.callGridSynth import *
-from CliffordTCompiler.CTcompiler import *
+from packages.CliffordTCompiler.callGridSynth import *
+from packages.CliffordTCompiler.CTcompiler import *
