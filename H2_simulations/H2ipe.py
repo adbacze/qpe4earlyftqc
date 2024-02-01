@@ -1,5 +1,5 @@
-from Imports import *
-from IPEGridSynth import *
+from packages.Imports import *
+from packages.qpe_protocols.ipe import *
 
 def Ham(g):
     #print('Ham')
