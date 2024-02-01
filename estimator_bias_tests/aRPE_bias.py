@@ -1,6 +1,5 @@
 from Imports import *
 from cmath import exp
-from aRPE import *
 
 def Ham(g):
     #print('Ham')
