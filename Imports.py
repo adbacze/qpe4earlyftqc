@@ -19,6 +19,3 @@ import scipy
 import math
 from CliffordTCompiler.callGridSynth import *
 from CliffordTCompiler.CTcompiler import *
-from qpe_protocols.aRPE import *
-from qpe_protocols.qcels import *
-from qpe_protocols.MMqcels import *
