@@ -186,7 +186,7 @@ for l in range(len(target)):
             est = (est - 2*pi)
         errors[l][k] = (abs(est-lc[0]))
     Ttot[l] = sim[1]
-    TMax[l] = sim[2]
+    Tmax[l] = sim[2]
     error[l] = np.mean(errors[l])
 
 #np.savetxt("PaperaRPEErrorp75.csv",error,delimiter=",")
