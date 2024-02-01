@@ -1,4 +1,5 @@
-#from Imports import *
+from Imports import *
+from packages.CliffordTCompiler.CTcompiler import *
 from cmath import exp
 
 #This script provides methods to simulate adapted robust phase estimation (aRPE) as described in https://arxiv.org/pdf/2302.02454.pdf 
@@ -114,7 +115,7 @@ def noisyDataGenerator(Ns, W, Usp, numQubits, gen, noiseModel, precision):
     qcI = compileCT2(qcI,precision)
     qcS = compileCT2(qcS,precision)
 
-    T = qcI.count_ops().get('t')+qcS.count_ops.get('t')
+    T = qcI.count_ops().get('t')+qcS.count_ops().get('t')
 
     measurement.barrier(range(numQubits))
     measurement.measure(0,0)
