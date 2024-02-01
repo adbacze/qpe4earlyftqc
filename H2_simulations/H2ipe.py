@@ -7,7 +7,6 @@ def Ham(g):
     X = np.array([[0,1],[1,0]])
     Y = np.array([[0,-1j],[1j,0]])
     I = np.array([[1,0],[0,1]])
-    H = (g[1]*np.kron(Z, I)) + (g[2]*np.kron(I, Z)) + (g[3]*np.kron(Z,Z)) + (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     H = (g[1]*np.kron(I, Z)) + (g[2]*np.kron(Z, I)) +  (g[4]*np.kron(X,X)) + (g[5]*np.kron(Y, Y))
     return H
 
@@ -69,7 +68,6 @@ g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [-0.3135, 0.0984, 0.0679, 0.3329, 0.1475, 0.1475]])
 
 def eigensystem(h):
-    #print('es')
     l,e = np.linalg.eig(h)
     ll = np.zeros(4)
     ee = np.zeros([4,4],dtype = 'complex_')
@@ -78,16 +76,11 @@ def eigensystem(h):
         ll[i] = l[m]
         ee[:,i] = e[:,m]
         l = np.delete(l,m)
-        #print(ee)
         e = np.delete(e,m,1)
     return ll,ee
 
-I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
-
-h = Ham(g[15])
-
 def P(h):
-    #print('P')
+    I = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
     PP = np.zeros([4,4])
     l,e = eigensystem(h)
     for i in range(4):
@@ -96,55 +89,55 @@ def P(h):
     return PP
 
 def Usp(circuit):
+    h = Ham(g[15])
     p = P(h)
     proj = UnitaryGate(p)
     #circuit.rx(pi/3,2)
     circuit.append(proj,[1,2])
 
-def W_trot(circuit,target):
+def W_trot(circuit):
     gTrot = g[15]
-    tjj = 1
-    a1 = -2*gTrot[1]*tjj
-    a2 = -2*gTrot[2]*tjj
-    a3 = -2*gTrot[3]*tjj
-    a4 = -2*gTrot[4]*tjj
-    a5 = -2*gTrot[5]*tjj
-    steps = 1
-    for i in range(steps):
-        #XX
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a4/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        #Z1
-        circuit.cx(0,1)
-        circuit.rz(a1/(2*steps),1)
-        circuit.cx(0,1)
-        #YY
-        circuit.sdg(1)
-        circuit.sdg(2)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.cx(2,1)
-        circuit.cx(0,1)
-        circuit.rz(a5/(2*steps),1)
-        circuit.cx(0,1)
-        circuit.cx(2,1)
-        circuit.h(1)
-        circuit.h(2)
-        circuit.s(1)
-        circuit.s(2)
-        #Z2
-        circuit.cx(0,2)
-        circuit.rz(a2/(2*steps),2)
-        circuit.cx(0,2)
+    t = 1
+    a1 = -2*gTrot[1]*t
+    a2 = -2*gTrot[2]*t
+    a3 = -2*gTrot[3]*t
+    a4 = -2*gTrot[4]*t
+    a5 = -2*gTrot[5]*t
+    
+    #XX
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a4/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    #Z1
+    circuit.cx(0,1)
+    circuit.rz(a1/2,1)
+    circuit.cx(0,1)
+    #YY
+    circuit.sdg(1)
+    circuit.sdg(2)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.cx(2,1)
+    circuit.cx(0,1)
+    circuit.rz(a5/2,1)
+    circuit.cx(0,1)
+    circuit.cx(2,1)
+    circuit.h(1)
+    circuit.h(2)
+    circuit.s(1)
+    circuit.s(2)
+    #Z2
+    circuit.cx(0,2)
+    circuit.rz(a2/2,2)
+    circuit.cx(0,2)
 
-def W(circuit,target):
+def W(circuit):
     tjj = pow(2,-3)
     unitary = scipy.linalg.expm(-1j*Ham(g[15])*tjj) #hbar=1
     U = UnitaryGate(unitary)
@@ -152,96 +145,45 @@ def W(circuit,target):
     circuit.append(cU,[0,1,2])
 
 target = np.logspace(-1,-10,num=10,base=2);
-#target = [2e-10]
-#J = 10
 Ns = 11
 error = np.zeros(len(target))
 Ttot = np.zeros(len(target))
 Tmax = np.zeros(len(target))
-wCalls = np.zeros(len(target))
 t = 1
 
 p_hardware = 0.001
-b = 35*pow(p_hardware,5)
-T_rate = 9.27
-d = 21
+#15:1 T-state factory
+b = 35*pow(p_hardware,3)
+T_rate = 11
 n_L = 19
+#116:12 T-state factory
+#b = 41.25*pow(p_hardware,4)
+#T_rate = 9.27
+#n_L = 65
+
+d = 21
 prob_err = b + T_rate*n_L*d*0.1*pow(100*p_hardware,(d+1)/2)
 DPerror = depolarizing_error(prob_err,1);
-#DPerror2 = DPerror.tensor(DPerror);
 nm = NoiseModel()
 nm.add_all_qubit_quantum_error(DPerror, ['t'])
-#nm.add_all_qubit_quantum_error(DPerror2, ['cx'])
+
 
 lc,ec = eigensystem(Ham(g[15]))
-print(lc[0])
+
 
 for l in range(len(target)):
     J = math.ceil(np.log2(2*pi/(t*target[l])))
     wCallsTot = pow(2,J)-1
-    synPrecision = 0.9*target[l]/(wCallsTot*4)
-    print(J)
+    synPrecision = 0.9*target[l]/(Ns*wCallsTot*4)
     sim = (gsIPE(Ns, W_trot, Usp, 3, J+1,target[l],nm))
     est = -sim[0]/t
-    print(est)
     error[l] = abs(est-(lc[0]))
-    wCalls[l] = sim[1]
+    Ttot[l] = sim[1]*Ns
+    Tmax[l] = sim[1]
 
-
-for i in range(len(target)):
-    J = math.ceil(np.log2(2*pi/(t*target[i])))
-    wCallsTot = pow(2,J)-1
-    synPrecision = 0.9*target[i]/(wCallsTot*4)
-    UspT = QuantumCircuit(3)
-    WT = QuantumCircuit(3)
-    rzT = QuantumCircuit(3)
-    Usp(UspT)
-    W_trot(WT,target[i])
-    #print(WT.draw())
-    rzT.rz(-((pi)/pow(2,i)),0)
-    UspT = compileCT2(UspT,0.9*target[i]/(wCalls[i]*4))
-    WT = compileCT2(WT,0.9*target[i]/(wCalls[i]*4))
-    rzT = compileCT2(rzT,0.9*target[i]/(wCalls[i]*4))
-    Tsp = UspT.count_ops().get('t')
-    Tw  = WT.count_ops().get('t')
-    Trz = rzT.count_ops().get('t')
-    if(Trz==None):
-        Trz = 0
-    Ttot[i] = Ns*(Tsp+wCalls[i]*Tw+J*Trz)
-    Tmax[i] = (Tsp+wCalls[i]*Tw+J*Trz)
-
-np.savetxt("PaperipeErrorp1.csv",error,delimiter=",")
-np.savetxt("PaperipeTtotp1.csv",Ttot,delimiter=",")
-np.savetxt("PaperipeTmaxp1.csv",Tmax,delimiter=",")
-
-plt.figure()
-plt.plot(Tmax,error)
-plt.plot(Tmax,target)
-#plt.plot(Num,scaling)
-plt.yscale("log")
-plt.xscale("log")
-plt.rc('axes', labelsize = 14)
-plt.ylabel("Error")
-plt.xlabel("Tmax")
-plt.grid()
-plt.legend(["Sim","Target"])
-#plt.savefig(r'C:\Users\jsnel\Desktop\SummerProject23\Code\Figures\ipeH2_Tmax.png')
-
-
-plt.figure()
-plt.plot(Ttot,error)
-plt.plot(Ttot,target)
-plt.yscale("log")
-plt.xscale("log")
-plt.rc('axes', labelsize = 14)
-plt.ylabel("Error")
-plt.xlabel("T Total")
-plt.grid()
-plt.legend(["Sim","Target"])
-#plt.savefig(r'C:\Users\jsnel\Desktop\SummerProject23\Code\Figures\ipeH2_Ttot.png')
-
-
-#plt.show()
+#np.savetxt("PaperipeErrorp1.csv",error,delimiter=",")
+#np.savetxt("PaperipeTtotp1.csv",Ttot,delimiter=",")
+#np.savetxt("PaperipeTmaxp1.csv",Tmax,delimiter=",")
 
 
 
