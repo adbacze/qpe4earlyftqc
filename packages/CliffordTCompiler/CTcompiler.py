@@ -1,3 +1,5 @@
+from callGridSynth import *
+
 #This script provides functions to take qiskit circuit objects and compile them into circuits containing only Clifford+T gates
 #Note that since this utilizes qiskit's built in Decomposer functions input circuits cannot contain classical registers.
 #If classical registers are needed (i.e. for measurement), you can first compile a quantum circuit containing no classical registers,
