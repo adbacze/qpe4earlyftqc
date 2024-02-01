@@ -1,4 +1,5 @@
 from Imports import *
+from qpe_protocols.MMqcels import *
 
 #This script is used to simulate MMQCELS applied to the ground state energy estimation of H2
 
