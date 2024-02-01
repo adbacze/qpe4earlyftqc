@@ -1,5 +1,4 @@
 from Imports import *
-from qcels import *
 
 def Ham(g):
     #print('Ham')
