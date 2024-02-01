@@ -107,8 +107,8 @@ def epsilonRZ(circuit,qubit,angle,precision): #
         elif (gateSequence[i] == "Z"):
             circuit.z(qubit)
 
-def epsilonClCRZ(circuit,qubit,angle,precision,cbit,cvalue): #Add classical control by adding control to all operations
-                                                             #cbit/cvalue designate classical bit(s) and value to controll on
+def epsilonClCRZ(circuit,qubit,angle,precision,cbit,cvalue): #Add classical control by adding control
+                                                             #to all operations
     gateSequence = epsilonGridSynth(angle,precision) #obtain string specifying gate sequence
 
     for i in range(0,len(gateSequence)): #parse through string, applying each gate controlled on specified ClassicalRegister to specified qubit within qiskit circuit
@@ -121,4 +121,4 @@ def epsilonClCRZ(circuit,qubit,angle,precision,cbit,cvalue): #Add classical cont
         elif (gateSequence[i] == "X"):
             circuit.x(qubit).c_if(cbit,cvalue)
         elif (gateSequence[i] == "Z"):
-            circuit.z(qubit).c_if(cbit,cvalue
+            circuit.z(qubit).c_if(cbit,cvalue)
