@@ -159,7 +159,7 @@ Ttot = np.zeros(len(target))
 #depolarizing noise model
 p_hardware = 0.001
 b = 35*pow(p_hardware,3) #assume 15:1 T state protocol
-T_rate = 9.27
+T_rate = 11
 d = 17
 n_L = 19
 prob_err = b + T_rate*n_L*d*0.1*pow(100*p_hardware,(d+1)/2) #probability of error per T gate
