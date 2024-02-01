@@ -1,4 +1,5 @@
-#from Imports import * #possibly redundant 
+from Imports import * #possibly redundant 
+from packages.CliffordTCompiler.CTcompiler import *
 from scipy.optimize import minimize
 from cmath import exp
 
