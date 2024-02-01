@@ -1,6 +1,7 @@
-#from Imports import *
+from Imports import *
 from scipy.optimize import minimize
 from cmath import exp
+from packages.CliffordTCompiler.CTcompiler import *
 
 #This script provides methods to simulate Quantum Complex Exponential Least Squares (QCELS) as described in https://arxiv.org/pdf/2211.11973.pdf
 #Two versions of this algorithm are provided; "qcels" performs noiseless simulations without compiling circuits into Clifford+Ts while "noisy_qcels" allows for the addition
