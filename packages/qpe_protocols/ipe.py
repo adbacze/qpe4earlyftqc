@@ -1,4 +1,5 @@
-#from Imports import *
+from Imports import *
+from packages.CliffordTCompiler.CTcompiler import *
 
 #Compiling IPE circuits into Clifford+Ts isn't straightforward due to the measurement and classically controlled operations
 #
