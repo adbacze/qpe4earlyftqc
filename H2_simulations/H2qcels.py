@@ -191,10 +191,11 @@ for l in range(len(target)):
             rep = rep*2
             est = zfit[2] 
             bnds = [(-1,1),(-1,1),(est-pi/(2*tj),est+pi/(2*tj))] #set new bounds
+            Ttot[l] += Ns*sim[1]
+            Tmax[l] = max(Tmax[l],sim[1]/2)
         errors[l][k] = (abs(est-lc[0]))
     error[l] = np.mean(errors[l])
-    Ttot[l] += Ns*sim[1]
-    Tmax[l] = sim[1]/2
+    Ttot[l] = Ttot[l]/samples
 
 
 #np.savetxt("PaperqcelErrorp1.csv",error,delimiter=",")
