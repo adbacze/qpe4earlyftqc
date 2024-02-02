@@ -169,7 +169,6 @@ nm.add_all_qubit_quantum_error(DPerror, ['t']) #We are assuming Clifford gates h
 
 for l in range(len(target)):
     J = math.ceil(np.log2(1/target[l]))+1
-    num[l] = Ns
     rNs = sqrt(Ns)
     if(rNs>4): #If state overlap=1 utilize error reduction from Ns to reduce J NOTE: come back here to implement better
     	J = max(J-2,1)
