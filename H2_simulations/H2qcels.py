@@ -182,7 +182,7 @@ for l in range(len(target)):
         for i in range(J):
             tj = pow(2,i)*tjj
             t = np.linspace(0,tj*(N-1),N)
-            sim = noisy_qcels(N,Ns,W_trot,Usp,3,rep,target[l],synPrecision);
+            sim = noisy_qcels(N,Ns,W_trot,Usp,3,rep,target[l],nm,synPrecision);
             z = sim[0]
             if (i==0):
                 est = (-1*atan2(np.imag(z[1]),np.real(z[1]))) #I found best results seeding first least squares fit with atan2
