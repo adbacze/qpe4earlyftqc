@@ -77,6 +77,8 @@ def gsIPE(Ns, W, Usp, numQubits, digits, precision, nm):
         ipe.reset(0)
 
     T = ipe.count_ops().get('t')
+    if(T==None):
+        T = 0
 
     aer_sim = AerSimulator(noise_model = nm)
     ipe_compiled = transpile(ipe, aer_sim)
