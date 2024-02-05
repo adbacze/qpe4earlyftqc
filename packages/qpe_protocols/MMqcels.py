@@ -128,9 +128,9 @@ def noisyDataGenerator(N, Ns, sigmaT, T, W, Usp, numQubits, gen, nm, precision):
     t = np.zeros(N)
     k = pow(2,gen-1)
     T_count = 0
+    T_max = 0
 
     for i in range(N):
-        wCN = 0
         qcI = QuantumCircuit(numQubits)
         qcS = QuantumCircuit(numQubits)
         measurement = QuantumCircuit(numQubits,1)
@@ -152,10 +152,9 @@ def noisyDataGenerator(N, Ns, sigmaT, T, W, Usp, numQubits, gen, nm, precision):
             for j in range(int(num)):
                 W(qcI,T)
                 W(qcS,T)
-                wCN += 2
             W(qcI,rem)
             W(qcS,rem)
-            wCN += 2
+
         elif(t[i] < 0):
             for j in range(int(num)):
                 W(qcI,-1*T)
@@ -172,7 +171,8 @@ def noisyDataGenerator(N, Ns, sigmaT, T, W, Usp, numQubits, gen, nm, precision):
         qcS = compileCT2(qcS,precision)
 
         T_count += qcI.count_ops().get('t')+qcS.count_ops().get('t')
-
+        T_max = max(T_max,qcI.count_ops().get('t'),qcS.count_ops().get('t'))
+        
         measurement.barrier(range(numQubits))
         measurement.measure(0,0)
 
@@ -205,7 +205,7 @@ def noisyDataGenerator(N, Ns, sigmaT, T, W, Usp, numQubits, gen, nm, precision):
 
         z[i] = complex(x,y)
 
-    return [t,z,T_count]
+    return [t,z,T_count,T_max]
 
 #N = number of data pairs per generation, number of samples per data pair, sigmaT = initial width of normal distrubtion of Hamiltonian simulation time (doubles every subsequent generation)
 #T = initial maximum Hamiltonian simulation time (doubles every subsequent generation, W = function to implement time evolution operator, Usp = function to implement state prep, numQubits = number of qubits including ancilla, gens = number of generations to run
@@ -221,7 +221,7 @@ def noisy_MMQcels(N, Ns, sigmaT, T, W, Usp, numQubits, gens, nm, precision):
         est = zfit[2]
         bnds = [(-1,1),(-1,1),(est-pi/(pow(2,i)*sigmaT),est+pi/(pow(2,i)*sigmaT))]
         Ttot += Ns*z[2]
-        Tmax = max(Tmax,z[2])
+        Tmax = max(Tmax,z[3])
     return [est,Ttot,Tmax]
 
 #
