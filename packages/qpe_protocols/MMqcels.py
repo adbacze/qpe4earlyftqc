@@ -2,7 +2,7 @@ from Imports import *
 from packages.CliffordTCompiler.CTcompiler import *
 from scipy.optimize import minimize
 from cmath import exp
-from math import pi
+
 
 #This script provides methods to simulate multi-modal quantum complex exponetenial least squares (MMQCELS) as described in https://arxiv.org/pdf/2303.05714.pdf 
 #Two versions of this algorithm are provided; "MMQcels" performs noiseless simulations without compiling circuits into Clifford+Ts while "noisy_MMQcels" allows for the addition
