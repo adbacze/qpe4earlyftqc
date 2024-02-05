@@ -178,7 +178,6 @@ for l in range(len(target)):
     wCallsTot = pow(2,J)-1 #determine total number of Z-rotations in order to determine necessary rotation sysnthesis precision
     synPrecision = 0.9*target[l]/(Ns*N*wCallsTot*4)
     for j in range(samples):
-        print("Gen "+str(J)+ " Sample "+str(j))
         sim = noisy_MMQcels(N, Ns, (1/3)*pow(2,-1), pow(2,-1), W_trot, Usp, 3, J, nm, synPrecision)
         est = sim[0]
         errors[l][j] = abs(est-lc[0])
