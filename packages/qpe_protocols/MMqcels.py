@@ -115,7 +115,7 @@ def MMQcels(N, Ns, sigmaT, T, W, Usp, numQubits, gens):
         z = dataGenerator(N,Ns,sigmaT,T,W,Usp,numQubits,i+1)
         zfit = maxF(z[1],N,z[0],est,bnds)
         est = zfit[2]
-        bnds = [(-1,1),(-1,1),(est-pi/(pow(2,i)*sigmaT),est+pi/(pow(2,i)*sigmaT))
+        bnds = [(-1,1),(-1,1),(est-pi/(pow(2,i)*sigmaT),est+pi/(pow(2,i)*sigmaT))]
     return est
 
 #N = number of data pairs, Ns = number of samples to produce each data pair, sigmaT = width of normal distribution from which Hamiltonian simulation time is selected,
