@@ -209,7 +209,7 @@ def noisyDataGenerator(N, Ns, sigmaT, T, W, Usp, numQubits, gen, nm, precision):
 #N = number of data pairs per generation, number of samples per data pair, sigmaT = initial width of normal distrubtion of Hamiltonian simulation time (doubles every subsequent generation)
 #T = initial maximum Hamiltonian simulation time (doubles every subsequent generation, W = function to implement time evolution operator, Usp = function to implement state prep, numQubits = number of qubits including ancilla, gens = number of generations to run
 #nm = noise model, precision = rotation sysnthesis precision for each Z-rotation
-def NoisyMMQcels(N, Ns, sigmaT, T, W, Usp, numQubits, gens, nm, precision):
+def noisy_MMQcels(N, Ns, sigmaT, T, W, Usp, numQubits, gens, nm, precision):
     bnds = [(-1,1),(-1,1),(-pi,pi)]
     est = 0
     Ttot = 0
