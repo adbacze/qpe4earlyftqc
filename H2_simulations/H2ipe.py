@@ -173,9 +173,9 @@ lc,ec = eigensystem(Ham(g[15]))
 
 for l in range(len(target)):
     J = math.ceil(np.log2(2*pi/(t*target[l])))
-    wCallsTot = pow(2,J)-1
+    wCallsTot = pow(2,J+1)-1
     synPrecision = 0.9*target[l]/(Ns*wCallsTot*4)
-    sim = (gsIPE(Ns, W_trot, Usp, 3, J+1,target[l],nm))
+    sim = (gsIPE(Ns, W_trot, Usp, 3, J+1,synPrecision,nm))
     est = -sim[0]/t
     error[l] = abs(est-(lc[0]))
     Ttot[l] = sim[1]*Ns
