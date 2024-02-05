@@ -171,7 +171,7 @@ def noisyDataGenerator(N, Ns, sigmaT, T, W, Usp, numQubits, gen, nm, precision):
         qcI = compileCT2(qcI,precision)
         qcS = compileCT2(qcS,precision)
 
-        T_count += qcI.count_ops().get('t')+qcS.count_ops.get('t')
+        T_count += qcI.count_ops().get('t')+qcS.count_ops().get('t')
 
         measurement.barrier(range(numQubits))
         measurement.measure(0,0)
