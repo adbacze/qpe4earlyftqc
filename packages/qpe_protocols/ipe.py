@@ -64,7 +64,7 @@ def gsIPE(Ns, W, Usp, numQubits, digits, precision, nm):
         wCirc = QuantumCircuit(numQubits)
         ipe.h(0)
         for j in range(pow(2,digits-i-1)):
-            W(wCirc,precision)
+            W(wCirc)
 
         wCirc = compileCT2(wCirc,precision)
         ipe = ipe.compose(wCirc)
