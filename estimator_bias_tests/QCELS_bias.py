@@ -184,7 +184,6 @@ for l in range(J):
             errors[l][k] = (abs(est-lc[0]))
         wCalls[l] = wCalls[l]/samples
         newError = np.mean(errors[l])
-        print(newError)
         #if(newError < target):
         #    error[l] = newError
         #    break
@@ -201,7 +200,7 @@ for i in range(J):
     UspT = QuantumCircuit(3)
     WT = QuantumCircuit(3)
     Usp(UspT)
-    W_trot(WT,target)
+    W_trot(WT)
     UspT = compileCT(UspT,0.9*target)
     WT = compileCT(WT,0.9*target)
     Tsp = UspT.count_ops().get('t')
