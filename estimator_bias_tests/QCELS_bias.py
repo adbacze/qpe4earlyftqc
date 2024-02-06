@@ -1,5 +1,5 @@
 from Imports import *
-from qpe_protocols.qcels import *
+from packages.qpe_protocols.qcels import *
 
 def Ham(g):
     #print('Ham')
@@ -92,7 +92,6 @@ def Usp(circuit):
     p = P(h)
     proj = UnitaryGate(p)
     circuit.rx(pi/3,1)
-    #circuit.rx(0.6435,1)
     circuit.append(proj,[1,2])
 
 def W(circuit,target):
@@ -102,8 +101,7 @@ def W(circuit,target):
     cU = U.control(1)
     circuit.append(cU,[0,1,2])
 
-def W_trot(circuit,target):
-    J = math.ceil(np.log2(1/target)) + 1
+def W_trot(circuit):
     t = pow(2,-1)
     gTrot = g[15]
     a1 = -2*gTrot[1]*t
@@ -173,8 +171,7 @@ for l in range(J):
                 print('S'+str(k)+ ' G'+str(i))
                 tj = pow(2,i)*tjj
                 t = np.linspace(0,tj*(N-1),N)
-                sim = qcels(N,int(Ns_f[l]),W_trot,Usp,3,rep,target);
-                z = sim[0]
+                z = qcels(N,int(Ns_f[l]),W_trot,Usp,3,rep);
                 if (i==0):
                     est = (-1*atan2(np.imag(z[1]),np.real(z[1])))
                     bnds = [(-1,1),(-1,1),(-pi,pi)]
@@ -183,9 +180,6 @@ for l in range(J):
                 rep = rep*2
                 est = zfit[2]
                 bnds = [(-1,1),(-1,1),(est-pi/(2*tj),est+pi/(2*tj))]
-                print(est)
-                #print(lc[0])
-                wCalls[l] += sim[1]
                 wCallsMax[l] = sim[1]/2
             errors[l][k] = (abs(est-lc[0]))
         wCalls[l] = wCalls[l]/samples
