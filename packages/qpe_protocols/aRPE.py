@@ -71,11 +71,10 @@ def arpe(Ns, Ns_final, W, Usp, numQubits, J):
     for i in range(J):
 
         if (i<(J-1)):
-            sim = dataGenerator(int(Ns), W, Usp, numQubits, i+1)
-            argz = sim[0]
+            argz = dataGenerator(int(Ns), W, Usp, numQubits, i+1)
+
         elif (i==(J-1)):
-            sim = dataGenerator(int(Ns_final), W, Usp, numQubits, i+1)
-            argz = sim[0]
+            argz = dataGenerator(int(Ns_final), W, Usp, numQubits, i+1)
 
         if(i==0):
             est = argz
