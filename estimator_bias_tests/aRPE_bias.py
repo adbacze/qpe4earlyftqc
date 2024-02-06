@@ -69,7 +69,6 @@ g = np.array([[2.8489, 0.5678, -1.4508, 0.6799, 0.0791, 0.0791],
               [-0.3135, 0.0984, 0.0679, 0.3329, 0.1475, 0.1475]])
 
 def eigensystem(h):
-    #print('es')
     l,e = np.linalg.eig(h)
     ll = np.zeros(4)
     ee = np.zeros([4,4],dtype = 'complex_')
@@ -180,7 +179,7 @@ for i in range(J):
         for k in range(samples):
             #print(Ns_f[i])
             sim = arpe(Ns_start, Ns_f[i], W_trot, Usp, 3, i+1)
-            est = (-sim[0]/t)%(2*pi)
+            est = (-sim/t)%(2*pi)
             if(est>pi):
                 est = (est - 2*pi)
             errors[i][k] = (abs(est-lc[0]))
@@ -193,8 +192,7 @@ for i in range(J):
             numFails += 1
             if(numFails == 5):
                 break
-    wCalls[i] = sim[1]
-    wCallsMax[i] = sim[2]
+    wCallsMax[i] = pow(2,i+1)
 
 for i in range(J):
     UspT = QuantumCircuit(3)
