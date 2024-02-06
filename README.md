@@ -4,3 +4,7 @@ Files inculde scripts to run various qpe protocols using IBMs qiskit package, al
 Additionally, subdirectories H2_simulations and estimator_bias_tests contain the scripts used to run all simulations described in **ADD LINK TO ARXIV**
 
 Files are structured such that scripts should be run from parent directory (e.g. to run "H2ipe.py" either run as "$py ./H2_simulations/H2ipe" ot first move the script into parent directory)  
+
+All code was developed using Python 3.9.12. As well as following qiskit versions: 
+
+{'qiskit-terra': '0.24.1', 'qiskit-aer': '0.12.0', 'qiskit-ignis': None, 'qiskit-ibmq-provider': '0.20.2', 'qiskit': '0.43.1', 'qiskit-nature': None, 'qiskit-finance': None, 'qiskit-optimization': None, 'qiskit-machine-learning': None}
