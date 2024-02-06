@@ -77,7 +77,6 @@ def eigensystem(h):
         ll[i] = l[m]
         ee[:,i] = e[:,m]
         l = np.delete(l,m)
-        #print(ee)
         e = np.delete(e,m,1)
     return ll,ee
     
@@ -93,8 +92,7 @@ def Usp(circuit):
     h = Ham(g[15])
     p = P(h)
     proj = UnitaryGate(p)
-    #circuit.rx(pi/3,1)
-    circuit.rx(0.6435,1)
+    circuit.rx(pi/3,1)
     circuit.append(proj,[1,2])
 
 t = pow(2,-1)
