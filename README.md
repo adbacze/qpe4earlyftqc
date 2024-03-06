@@ -1,7 +1,7 @@
 # qpe4earlyftqc
 This is part of a project to evaluate resource requirements of quantum phase estimation (qpe) protocols in an early fault tolerant setting. 
 Files inculde scripts to run various qpe protocols using IBMs qiskit package, along with a "Clifford+T Compilier" with takes a quantum circuit and synthesizes it into the universal gate set of Cliffords + Ts.
-Additionally, subdirectories H2_simulations and estimator_bias_tests contain the scripts used to run all simulations described in [**ADD LINK TO ARXIV**](https://arxiv.org/abs/2403.00077)
+Additionally, subdirectories H2_simulations and estimator_bias_tests contain the scripts used to run all simulations described in https://arxiv.org/abs/2403.00077
 
 In order for the Clifford+T Compilier to work, gridsynth must be downloaded and placed in file "./packages/CliffordTCompiler".
 Gridsynth is avaliable for free from Peter Selinger's website (https://www.mathstat.dal.ca/~selinger/newsynth/) and comes in versions for Windows, Mac, and Linux.
