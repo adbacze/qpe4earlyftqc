@@ -80,7 +80,7 @@ def arpe(Ns, Ns_final, W, Usp, numQubits, J):
             est = argz
         else:
             #shift estimate to be in correct range based off previous generation
-            while ( (abs(argz - est)) >  (abs((argz + 2*pi/(pow(2,i+1))) - est)) ):
+            while ( (abs(argz - est)%(2*pi)) >  (abs((argz + 2*pi/(pow(2,i+1))) - est))%(2*pi) ):
                 argz += 2*pi/(pow(2,i+1))
             est = argz #update estimate
 
@@ -171,7 +171,7 @@ def noisy_arpe(Ns, Ns_final, W, Usp, numQubits, J,  noiseModel, precision):
             est = argz
         else:
             #shift estimate to be in correct range based off previous generation
-            while ( (abs(argz - est)) >  (abs((argz + 2*pi/(pow(2,i+1))) - est)) ):
+            while ( (abs(argz - est)%(2*pi)) >  (abs((argz + 2*pi/(pow(2,i+1))) - est))%(2*pi) ):
                 argz += 2*pi/(pow(2,i+1))
             est = argz #update estimate
     #Shift to (-pi,pi]
